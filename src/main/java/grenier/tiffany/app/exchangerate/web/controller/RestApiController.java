@@ -15,7 +15,6 @@ import java.util.Currency;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.time.LocalDate.now;
-import static java.util.Optional.ofNullable;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -34,18 +33,24 @@ public final class RestApiController {
         this.validator = validator;
     }
 
-    @RequestMapping(value = "/convertDummy", method = GET)
+    @RequestMapping(value = "/getDummyConversionRate", method = GET)
     public ExchangeRate convertDummy() {
         return convert("EUR", now());
     }
 
-    @RequestMapping(value = "/convert", method = GET)
+    @RequestMapping(value = "/getConversionRate", method = GET)
+    public ExchangeRate convert(@RequestParam("currency") final String currency)
+            throws IllegalArgumentException {
+        return convert(currency, now());
+    }
+
+    @RequestMapping(value = "/getPastConversionRate", method = GET)
     public ExchangeRate convert(@RequestParam("currency") final String currency,
-                                @DateTimeFormat(iso = DATE) @RequestParam(value = "date", required = false) final LocalDate date)
+                                @DateTimeFormat(iso = DATE) @RequestParam("date") final LocalDate date)
             throws IllegalArgumentException {
         checkArgument(!isNullOrEmpty(currency), "currency cannot be a null or empty string");
         final Currency validatedCurrency = validator.validateCurrency(currency);
-        final LocalDate validatedDate = validator.validateDate(ofNullable(date).orElse(now()));
+        final LocalDate validatedDate = validator.validateDate(date);
         return store.getExchangeRate(validatedCurrency, validatedDate);
     }
 }

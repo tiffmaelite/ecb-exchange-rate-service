@@ -1,14 +1,23 @@
 package grenier.tiffany.app.exchangerate.model;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Currency;
 import java.util.Objects;
 
-public final class ExchangeRate {
+public final class ExchangeRate implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final Currency currencyFrom;
     private final Currency currencyTo;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private final LocalDate conversionDate;
     private final double conversionRate;
 

@@ -34,7 +34,7 @@ public final class RestApiTest {
     private InputValidator mockValidator;
 
     @Test
-    public void convertShouldReturnRateFromService() throws Exception {
+    public void getPastConversionRateShouldReturnRateFromService() throws Exception {
         final String currencyCode = "GBP";
         final Currency currency = Currency.getInstance(currencyCode);
 
@@ -47,7 +47,7 @@ public final class RestApiTest {
         when(mockValidator.validateCurrency(currencyCode)).thenReturn(currency);
         when(mockValidator.validateDate(date)).thenReturn(date);
 
-        mockMvc.perform(get("/api/convert?currency=" + currencyCode + "&date=" + dateString))
+        mockMvc.perform(get("/api/getPastConversionRate?currency=" + currencyCode + "&date=" + dateString))
                 .andExpect(status().isOk())
                 .andExpect(content().json(//TODO: response file in resources
                         "{"
