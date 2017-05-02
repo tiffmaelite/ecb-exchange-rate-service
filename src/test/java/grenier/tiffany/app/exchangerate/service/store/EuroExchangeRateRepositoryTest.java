@@ -42,7 +42,7 @@ public class EuroExchangeRateRepositoryTest {
 
     @Test
     public void getWithoutDate() {
-        final ExchangeRate latestChfRate = FILLED_STORE.get(chf);
+        final ExchangeRate latestChfRate = FILLED_STORE.getLatest(chf);
         assertThat(latestChfRate, is(chfRate_2));
     }
 

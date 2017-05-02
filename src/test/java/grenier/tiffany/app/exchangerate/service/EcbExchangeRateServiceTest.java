@@ -14,6 +14,7 @@ import java.util.Currency;
 import static grenier.tiffany.app.exchangerate.service.EuroExchangeRateService.EUR;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -69,6 +70,21 @@ public class EcbExchangeRateServiceTest {
 
         verify(mockDataService, times(1)).fetchHistoricalData();
         verify(mockRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void getEuroToEuroExchangeRateIsOne() {
+        final LocalDate date = LocalDate.parse("2016-08-03");
+
+        final EcbExchangeRateService service = new EcbExchangeRateService(mockDataService, mockRepository);
+
+        final ExchangeRate rate = service.getExchangeRate(EUR, date);
+
+        assertThat(rate, is(notNullValue()));
+        assertThat(rate.getConversionRate(), is(1.0));
+
+        verify(mockDataService, times(0)).fetchHistoricalData();
+        verify(mockDataService, times(0)).fetchLatestData();
     }
 
 }

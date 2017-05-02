@@ -22,6 +22,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public final class EcbExchangeRateService implements EuroExchangeRateService {//FIXME: rename to avoid confusion with EcbDataService
     private static final Logger LOGGER = getLogger(EcbExchangeRateService.class);
+    private static final Currency BASE_CURRENCY = EUR;
 
     @Autowired
     private EcbDataService dataFetcher;
@@ -42,19 +43,29 @@ public final class EcbExchangeRateService implements EuroExchangeRateService {//
     @Override
     public ExchangeRate getExchangeRate(final Currency currency, final LocalDate date) {
         initStorage();
+        if (BASE_CURRENCY.equals(currency)) {
+            return getIdentityExchangeRate(currency, date);
+        }
         return store.get(currency, date);
     }
 
     @Override
     public ExchangeRate getLatestExchangeRate(final Currency currency) {
         initStorage();
-        return store.get(currency);
+        if (BASE_CURRENCY.equals(currency)) {
+            return getIdentityExchangeRate(currency, store.getLatestDate());
+        }
+        return store.getLatest(currency);
     }
 
     private void initStorage() {
         if (store.isEmpty()) {
             updateStore();
         }
+    }
+
+    private ExchangeRate getIdentityExchangeRate(final Currency currency, final LocalDate date) {
+        return new ExchangeRate(currency, currency, date, 1.0);
     }
 
     @Scheduled(cron = "0 30 15 * * *", zone = "UTC")//file on ECB server is updated at 4pm CET

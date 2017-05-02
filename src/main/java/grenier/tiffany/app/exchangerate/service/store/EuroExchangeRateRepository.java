@@ -50,7 +50,7 @@ public class EuroExchangeRateRepository {
         return table.get(date, currency);
     }
 
-    public synchronized ExchangeRate get(final Currency currency) {
+    public synchronized ExchangeRate getLatest(final Currency currency) {
         return get(currency, latestDate);
     }
 
