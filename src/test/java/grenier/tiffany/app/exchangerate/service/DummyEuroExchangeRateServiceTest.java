@@ -22,8 +22,8 @@ public final class DummyEuroExchangeRateServiceTest {
         final Currency testCurrency = Currency.getInstance("CHF");
         final LocalDate testDate = now();
 
-        final DummyEuroExchangeRateService store = new DummyEuroExchangeRateService();
-        final ExchangeRate exchangeRate = store.getExchangeRate(testCurrency, testDate);
+        final DummyEuroExchangeRateService service = new DummyEuroExchangeRateService();
+        final ExchangeRate exchangeRate = service.getExchangeRate(testCurrency, testDate);
         assertThat(exchangeRate, is(notNullValue()));
 
         assertThat(exchangeRate.getConversionDate(), is(testDate));

@@ -13,4 +13,9 @@ public interface EuroExchangeRateService {
      * returns foreign exchange rate from Euro to provided currency on given date
      */
     ExchangeRate getExchangeRate(Currency currency, LocalDate date);
+
+    /**
+     * returns foreign exchange rate from Euro to provided currency on latest available date
+     */
+    ExchangeRate getLatestExchangeRate(Currency currency);
 }
