@@ -68,7 +68,7 @@ public final class EcbExchangeRateService implements EuroExchangeRateService {//
         return new ExchangeRate(currency, currency, date, 1.0);
     }
 
-    @Scheduled(cron = "0 30 15 * * *", zone = "UTC")//file on ECB server is updated at 4pm CET
+    @Scheduled(cron = "${scheduling.ecb.job.cron}", zone = "UTC")//file on ECB server is updated at 4pm CET
     public void updateStore() {
         final Future<Collection<ExchangeRate>> result = dataFetcher.fetchHistoricalData();
         try {
