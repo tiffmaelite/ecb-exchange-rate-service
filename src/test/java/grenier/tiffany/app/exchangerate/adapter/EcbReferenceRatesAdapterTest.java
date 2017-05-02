@@ -22,11 +22,11 @@ import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.assertThat;
 
 //TODO: use Spock?
-public final class EcbAdapterTest {
+public final class EcbReferenceRatesAdapterTest {
 
     @Test
     public void adaptEcbReferenceRates() {
-        final EcbAdapter adapter = new EcbAdapter();
+        final EcbReferenceRatesAdapter adapter = new EcbReferenceRatesAdapter();
         final Collection<ExchangeRate> fxRates = adapter.adapt(createEcbReferenceRates());
 
         assertThat(fxRates, is(notNullValue()));
@@ -41,7 +41,7 @@ public final class EcbAdapterTest {
 
     @Test
     public void adaptDatedEuroExchangeRates() {
-        final EcbAdapter adapter = new EcbAdapter();
+        final EcbReferenceRatesAdapter adapter = new EcbReferenceRatesAdapter();
         final Stream<ExchangeRate> rates = adapter.adapt(createDatedEuroExchangeRates2());
 
         assertThat(rates, is(notNullValue()));
@@ -57,11 +57,11 @@ public final class EcbAdapterTest {
 
     @Test
     public void adaptEuroExchangeRate() {
-        final EcbAdapter adapter = new EcbAdapter();
+        final EcbReferenceRatesAdapter adapter = new EcbReferenceRatesAdapter();
         final ExchangeRate rate = adapter.adapt(LocalDate.parse(DATE_1), createEuroExchangeRate(USD, USD_RATE_1));
 
         assertThat(rate, is(notNullValue()));
-        
+
         assertThat(rate.getCurrencyFrom(), is(EUR));
         assertThat(rate.getCurrencyTo(), is(Currency.getInstance(USD)));
         assertThat(rate.getConversionDate(), is(LocalDate.parse(DATE_1)));

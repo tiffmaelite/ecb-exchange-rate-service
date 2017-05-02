@@ -17,7 +17,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 public final class EcbDataServiceTest {
-
     @Test
     public void loadDailyConversionRates() throws Exception {
         final EcbDataService service = new EcbDataService();

@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(RestApiController.class)
+//TODO: use Spock?
 public final class RestApiTest {
 
     @Autowired
@@ -54,6 +55,31 @@ public final class RestApiTest {
                                 + "\"currencyFrom\" :\"EUR\","
                                 + "\"currencyTo\" :\"" + currencyCode + "\","
                                 + "\"conversionDate\" :\"" + dateString + "\","
+                                + "\"conversionRate\" :" + rate
+                                + "}"
+                ));
+    }
+
+    @Test
+    public void getConversionRateShouldReturnRateFromService() throws Exception {
+        final String currencyCode = "GBP";
+        final Currency currency = Currency.getInstance(currencyCode);
+
+        final String latestDateString = "2017-04-28";
+        final LocalDate latestDate = LocalDate.parse(latestDateString);
+
+        final double rate = 0.83705;
+
+        when(mockService.getLatestExchangeRate(currency)).thenReturn(new ExchangeRate(EUR, currency, latestDate, rate));
+        when(mockValidator.validateCurrency(currencyCode)).thenReturn(currency);
+
+        this.mockMvc.perform(get("/api/getConversionRate?currency=" + currencyCode))
+                .andExpect(status().isOk())
+                .andExpect(content().json(//TODO: response file in resources
+                        "{"
+                                + "\"currencyFrom\" :\"EUR\","
+                                + "\"currencyTo\" :\"" + currencyCode + "\","
+                                + "\"conversionDate\" :\"" + latestDateString + "\","
                                 + "\"conversionRate\" :" + rate
                                 + "}"
                 ));

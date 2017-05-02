@@ -41,7 +41,9 @@ public final class RestApiController {
     @RequestMapping(value = "/getConversionRate", method = GET)
     public ExchangeRate convert(@RequestParam("currency") final String currency)
             throws IllegalArgumentException {
-        return convert(currency, null);
+        checkArgument(!isNullOrEmpty(currency), "currency cannot be a null or empty string");
+        final Currency validatedCurrency = validator.validateCurrency(currency);
+        return store.getLatestExchangeRate(validatedCurrency);
     }
 
     @RequestMapping(value = "/getPastConversionRate", method = GET)
@@ -50,11 +52,7 @@ public final class RestApiController {
             throws IllegalArgumentException {
         checkArgument(!isNullOrEmpty(currency), "currency cannot be a null or empty string");
         final Currency validatedCurrency = validator.validateCurrency(currency);
-        if (date == null) {
-            return store.getExchangeRate(validatedCurrency);
-        } else {
-            final LocalDate validatedDate = validator.validateDate(date);
-            return store.getExchangeRate(validatedCurrency, validatedDate);
-        }
+        final LocalDate validatedDate = validator.validateDate(date);
+        return store.getExchangeRate(validatedCurrency, validatedDate);
     }
 }

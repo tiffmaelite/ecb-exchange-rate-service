@@ -1,6 +1,6 @@
 package grenier.tiffany.app.exchangerate.service;
 
-import grenier.tiffany.app.exchangerate.adapter.EcbAdapter;
+import grenier.tiffany.app.exchangerate.adapter.EcbReferenceRatesAdapter;
 import grenier.tiffany.app.exchangerate.model.ExchangeRate;
 import grenier.tiffany.app.exchangerate.model.ecb.DatedEuroExchangeRates;
 import grenier.tiffany.app.exchangerate.model.ecb.EcbReferenceRates;
@@ -18,12 +18,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Currency;
 import java.util.concurrent.Future;
 
-import static java.time.format.DateTimeFormatter.ISO_DATE;
 import static java.util.Collections.emptyList;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -55,16 +52,9 @@ public class EcbDataService {
     }
 
     @Async
-    Future<ExchangeRate> fetchHistoricalData(final Currency currency, final LocalDate date) {
+    Future<Collection<ExchangeRate>> fetchHistoricalData() {
         try {
-            final Collection<ExchangeRate> exchangeRates = loadConversionRates(new URL(URL_HISTORY));
-            final ExchangeRate result = exchangeRates.stream()
-                    .filter(r -> r.getConversionDate().equals(date))
-                    .filter(r -> r.getCurrencyTo().equals(currency))
-                    .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "No exchange rate for currency " + currency.getCurrencyCode() + " at date " + date.format(ISO_DATE)));
-            return new AsyncResult<>(result);
+            return new AsyncResult<>(loadConversionRates(new URL(URL_HISTORY)));
         } catch (final MalformedURLException e) {
             LOGGER.error("Unable to access data at " + URL_HISTORY + ": {}", e.getMessage(), e);
             return null;
@@ -72,14 +62,9 @@ public class EcbDataService {
     }
 
     @Async
-    Future<ExchangeRate> fetchLatestData(final Currency currency) {
+    Future<Collection<ExchangeRate>> fetchLatestData() {
         try {
-            final Collection<ExchangeRate> exchangeRates = loadConversionRates(new URL(URL_DAILY));
-            final ExchangeRate result = exchangeRates.stream()
-                    .filter(r -> r.getCurrencyTo().equals(currency))
-                    .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("No exchange rate for currency " + currency.getCurrencyCode()));
-            return new AsyncResult<>(result);
+            return new AsyncResult<>(loadConversionRates(new URL(URL_DAILY)));
         } catch (final MalformedURLException e) {
             LOGGER.error("Unable to access data at " + URL_DAILY + ": {}", e.getMessage(), e);
             return null;
@@ -89,7 +74,7 @@ public class EcbDataService {
     Collection<ExchangeRate> loadConversionRates(final URL url) {
         try (InputStream is = url.openStream()) {
             final EcbReferenceRates ecbRates = (EcbReferenceRates) unmarshaller.unmarshal(new StreamSource(is));
-            return new EcbAdapter().adapt(ecbRates);
+            return new EcbReferenceRatesAdapter().adapt(ecbRates);
         } catch (final IOException ioe) {
             LOGGER.error("An error occured while loading conversion rates: {}", ioe.getMessage(), ioe);
             return emptyList();

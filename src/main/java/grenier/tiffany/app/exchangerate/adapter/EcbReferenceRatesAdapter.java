@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import static grenier.tiffany.app.exchangerate.service.EuroExchangeRateService.EUR;
 import static java.util.stream.Collectors.toList;
 
-public final class EcbAdapter {
+public final class EcbReferenceRatesAdapter {
 
     public Collection<ExchangeRate> adapt(final EcbReferenceRates ecbRates) {
         return ecbRates
@@ -24,8 +24,9 @@ public final class EcbAdapter {
     }
 
     Stream<ExchangeRate> adapt(final DatedEuroExchangeRates c) {
+        final LocalDate conversionDate = LocalDate.parse(c.getTime());
         return c.getCube().stream()
-                .map(r -> adapt(LocalDate.parse(c.getTime()), r));
+                .map(r -> adapt(conversionDate, r));
     }
 
     ExchangeRate adapt(final LocalDate date, final EuroExchangeRate r) {
