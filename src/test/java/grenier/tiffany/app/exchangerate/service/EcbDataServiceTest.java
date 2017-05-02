@@ -16,11 +16,11 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
-public final class EcbExchangeRateServiceTest {
+public final class EcbDataServiceTest {
 
     @Test
     public void loadDailyConversionRates() throws Exception {
-        final EcbExchangeRateService service = new EcbExchangeRateService();
+        final EcbDataService service = new EcbDataService();
         final URL path = getClass().getClassLoader().getResource("xml/eurofxref-daily.xml");
         final Collection<ExchangeRate> rates = service.loadConversionRates(path);
         assertThat(rates, is(notNullValue()));
@@ -31,7 +31,7 @@ public final class EcbExchangeRateServiceTest {
 
     @Test
     public void loadHistoricalConversionRates() throws Exception {
-        final EcbExchangeRateService service = new EcbExchangeRateService();
+        final EcbDataService service = new EcbDataService();
         final URL path = getClass().getClassLoader().getResource("xml/eurofxref-hist-90d.xml");
         final Collection<ExchangeRate> rates = service.loadConversionRates(path);
         assertThat(rates, is(notNullValue()));
