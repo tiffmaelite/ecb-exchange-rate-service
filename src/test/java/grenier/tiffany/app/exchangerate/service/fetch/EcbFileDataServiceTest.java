@@ -1,6 +1,7 @@
-package grenier.tiffany.app.exchangerate.service;
+package grenier.tiffany.app.exchangerate.service.fetch;
 
 import grenier.tiffany.app.exchangerate.model.ExchangeRate;
+import grenier.tiffany.app.exchangerate.service.fetch.EcbFileDataService;
 import org.junit.Test;
 
 import java.net.URL;
@@ -16,10 +17,10 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
-public final class EcbDataServiceTest {
+public final class EcbFileDataServiceTest {
     @Test
     public void loadDailyConversionRates() throws Exception {
-        final EcbDataService service = new EcbDataService();
+        final EcbFileDataService service = new EcbFileDataService();
         final URL path = getClass().getClassLoader().getResource("xml/eurofxref-daily.xml");
         final Collection<ExchangeRate> rates = service.loadConversionRates(path);
         assertThat(rates, is(notNullValue()));
@@ -30,7 +31,7 @@ public final class EcbDataServiceTest {
 
     @Test
     public void loadHistoricalConversionRates() throws Exception {
-        final EcbDataService service = new EcbDataService();
+        final EcbFileDataService service = new EcbFileDataService();
         final URL path = getClass().getClassLoader().getResource("xml/eurofxref-hist-90d.xml");
         final Collection<ExchangeRate> rates = service.loadConversionRates(path);
         assertThat(rates, is(notNullValue()));

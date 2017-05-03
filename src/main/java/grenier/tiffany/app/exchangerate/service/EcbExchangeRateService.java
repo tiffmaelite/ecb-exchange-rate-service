@@ -2,6 +2,7 @@ package grenier.tiffany.app.exchangerate.service;
 
 import grenier.tiffany.app.exchangerate.exception.ExchangeRateNotFoundException;
 import grenier.tiffany.app.exchangerate.model.ExchangeRate;
+import grenier.tiffany.app.exchangerate.service.fetch.DataService;
 import grenier.tiffany.app.exchangerate.service.store.EuroExchangeRateRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +19,16 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * fetches daily the reference rates from ECB and stores them for later retrieval
- *
- * @link https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
- * @link https://www.ecb.europa.eu/press/pr/date/2015/html/pr151207.en.html
+ * <p>
+ * See <a href="https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html">https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html</a> and
+ * <a href="https://www.ecb.europa.eu/press/pr/date/2015/html/pr151207.en.html">https://www.ecb.europa.eu/press/pr/date/2015/html/pr151207.en.html</a>
  */
 public final class EcbExchangeRateService implements EuroExchangeRateService {//FIXME: rename to avoid confusion with EcbDataService
     private static final Logger LOGGER = getLogger(EcbExchangeRateService.class);
     private static final Currency BASE_CURRENCY = EUR;
 
     @Autowired
-    private EcbDataService dataFetcher;
+    private DataService dataFetcher;
 
     @Autowired
     private EuroExchangeRateRepository store;
@@ -36,7 +37,7 @@ public final class EcbExchangeRateService implements EuroExchangeRateService {//
     }
 
     //for tests only
-    EcbExchangeRateService(final EcbDataService dataFetcher,
+    EcbExchangeRateService(final DataService dataFetcher,
                            final EuroExchangeRateRepository store) {
         this.dataFetcher = dataFetcher;
         this.store = store;
@@ -72,7 +73,8 @@ public final class EcbExchangeRateService implements EuroExchangeRateService {//
         return new ExchangeRate(currency, currency, date, 1.0);
     }
 
-    @Scheduled(cron = "${scheduling.ecb.job.cron}", zone = "UTC")//file on ECB server is updated at 4pm CET
+    //file on ECB server is updated at 4pm CET every working day except TARGET closing dates (where it is not updated)
+    @Scheduled(cron = "${scheduling.ecb.job.cron}", zone = "UTC")
     public void updateStore() {
         final Future<Collection<ExchangeRate>> result = dataFetcher.fetchHistoricalData();
         try {

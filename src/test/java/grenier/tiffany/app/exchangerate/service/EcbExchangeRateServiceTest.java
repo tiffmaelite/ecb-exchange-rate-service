@@ -1,6 +1,7 @@
 package grenier.tiffany.app.exchangerate.service;
 
 import grenier.tiffany.app.exchangerate.model.ExchangeRate;
+import grenier.tiffany.app.exchangerate.service.fetch.EcbFileDataService;
 import grenier.tiffany.app.exchangerate.service.store.EuroExchangeRateRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.when;
 public class EcbExchangeRateServiceTest {
 
     @Mock
-    private EcbDataService mockDataService;
+    private EcbFileDataService mockDataService;
 
     @Mock
     private EuroExchangeRateRepository mockRepository;

@@ -1,4 +1,4 @@
-package grenier.tiffany.app.exchangerate.service;
+package grenier.tiffany.app.exchangerate.service.fetch;
 
 import grenier.tiffany.app.exchangerate.adapter.EcbReferenceRatesAdapter;
 import grenier.tiffany.app.exchangerate.model.ExchangeRate;
@@ -25,19 +25,21 @@ import static java.util.Collections.emptyList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * Reads the Euro fx rates from the European Central Bank data feeds
+ * Reads the Euro fx rates from the European Central Bank data feed located at
+ * <a href="http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml">http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml</a> and
+ * <a href="http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml">http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml</a>
  */
 @Service
-public class EcbDataService {
+public class EcbFileDataService implements DataService {
 
-    private static final Logger LOGGER = getLogger(EcbDataService.class);
+    private static final Logger LOGGER = getLogger(EcbFileDataService.class);
 
     private static final String URL_DAILY = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
     private static final String URL_HISTORY = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
 
     private Unmarshaller unmarshaller;
 
-    public EcbDataService() {
+    public EcbFileDataService() {
         unmarshaller = createUnmarshaller();
     }
 
@@ -51,8 +53,9 @@ public class EcbDataService {
         return marshaller;
     }
 
+    @Override
     @Async
-    Future<Collection<ExchangeRate>> fetchHistoricalData() {
+    public Future<Collection<ExchangeRate>> fetchHistoricalData() {
         try {
             return new AsyncResult<>(loadConversionRates(new URL(URL_HISTORY)));
         } catch (final MalformedURLException e) {
@@ -61,8 +64,9 @@ public class EcbDataService {
         }
     }
 
+    @Override
     @Async
-    Future<Collection<ExchangeRate>> fetchLatestData() {
+    public Future<Collection<ExchangeRate>> fetchLatestData() {
         try {
             return new AsyncResult<>(loadConversionRates(new URL(URL_DAILY)));
         } catch (final MalformedURLException e) {

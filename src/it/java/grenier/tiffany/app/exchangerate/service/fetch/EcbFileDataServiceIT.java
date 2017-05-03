@@ -1,4 +1,4 @@
-package grenier.tiffany.app.exchangerate.service;
+package grenier.tiffany.app.exchangerate.service.fetch;
 
 import grenier.tiffany.app.exchangerate.model.ExchangeRate;
 import org.junit.Test;
@@ -14,11 +14,11 @@ import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public final class EcbDataServiceIT {
+public final class EcbFileDataServiceIT {
 
     @Test
     public void fetchHistoricalData() {
-        final EcbDataService service = new EcbDataService();
+        final EcbFileDataService service = new EcbFileDataService();
         final Future<Collection<ExchangeRate>> result = service.fetchHistoricalData();
         try {
             final Collection<ExchangeRate> rates = result.get();
@@ -31,7 +31,7 @@ public final class EcbDataServiceIT {
 
     @Test
     public void fetchLatestData() {
-        final EcbDataService service = new EcbDataService();
+        final EcbFileDataService service = new EcbFileDataService();
         final Future<Collection<ExchangeRate>> result = service.fetchLatestData();
         try {
             final Collection<ExchangeRate> rates = result.get();
