@@ -1,83 +1,76 @@
 package grenier.tiffany.app.exchangerate.service.store;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import grenier.tiffany.app.exchangerate.model.ExchangeRate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.Map;
 import java.util.Objects;
 
 import static java.util.Collections.reverseOrder;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 @Service
-//TODO: proper thread-safe caching solution
 public class EuroExchangeRateRepository {
 
-    private final Table<LocalDate, Currency, ExchangeRate> table = HashBasedTable.create();
+    private final Cache<EuroFxRateId, ExchangeRate> cache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, DAYS)
+            .build();
     private LocalDate latestDate;
 
     public boolean isEmpty() {
-        return latestDate == null || table.isEmpty();
+        return cache.size() == 0;
     }
 
-    /**
-     * saves atomically the given rates
-     *
-     * @param exchangeRates fxRates to save
-     */
-    public synchronized void save(final Collection<ExchangeRate> exchangeRates) {
-        table.clear();
-        table.putAll(getExchangeRatesByCurrencyAndDate(exchangeRates));
-        latestDate = table.rowKeySet().stream().sorted(reverseOrder()).findFirst().orElse(null);
+    public void save(final Collection<ExchangeRate> exchangeRates) {
+        final Map<EuroFxRateId, ExchangeRate> ratesByCurrencyAndDate = exchangeRates.stream()
+                .collect(toMap(fxRate -> new EuroFxRateId(fxRate.getConversionDate(), fxRate.getCurrencyTo()), identity()));
+        cache.putAll(ratesByCurrencyAndDate);
+        latestDate = ratesByCurrencyAndDate.keySet().stream()
+                .map(id -> id.conversionDate)
+                .sorted(reverseOrder()).findFirst()
+                .orElse(null);
     }
 
-    private Table<LocalDate, Currency, ExchangeRate> getExchangeRatesByCurrencyAndDate(final Collection<ExchangeRate> exchangeRates) {
-        final Table<LocalDate, Currency, ExchangeRate> resultTable = HashBasedTable.create();
-        for (final ExchangeRate fxRate : exchangeRates) {
-            resultTable.put(fxRate.getConversionDate(), fxRate.getCurrencyTo(), fxRate);
-        }
-        return resultTable;
-    }
-
-    public synchronized LocalDate getLatestDate() {
+    public LocalDate getLatestDate() {
         return latestDate;
     }
 
-    public synchronized ExchangeRate get(final Currency currency, final LocalDate date) {
-        return table.get(date, currency);
+    public ExchangeRate get(final Currency currency, final LocalDate date) {
+        return cache.getIfPresent(new EuroFxRateId(date, currency));
     }
 
-    public synchronized ExchangeRate getLatest(final Currency currency) {
+    public ExchangeRate getLatest(final Currency currency) {
         return get(currency, latestDate);
     }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("EuroExchangeRateRepository{");
-        sb.append("table=").append(table);
-        sb.append(", latestDate=").append(latestDate);
-        sb.append('}');
-        return sb.toString();
-    }
+    private class EuroFxRateId {
+        private final LocalDate conversionDate;
+        private final Currency currencyTo;
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
+        EuroFxRateId(final LocalDate conversionDate, final Currency currencyTo) {
+            this.conversionDate = conversionDate;
+            this.currencyTo = currencyTo;
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final EuroExchangeRateRepository that = (EuroExchangeRateRepository) o;
-        return Objects.equals(table, that.table) &&
-                Objects.equals(latestDate, that.latestDate);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(table, latestDate);
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final EuroFxRateId that = (EuroFxRateId) o;
+            return Objects.equals(conversionDate, that.conversionDate) &&
+                    Objects.equals(currencyTo, that.currencyTo);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(conversionDate, currencyTo);
+        }
     }
 }
