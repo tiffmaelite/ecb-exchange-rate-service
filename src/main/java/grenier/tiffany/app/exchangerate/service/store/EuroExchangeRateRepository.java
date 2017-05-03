@@ -6,12 +6,10 @@ import grenier.tiffany.app.exchangerate.model.ExchangeRate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static java.util.Collections.reverseOrder;
+import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -42,11 +40,11 @@ public class EuroExchangeRateRepository {
         return latestDate;
     }
 
-    public ExchangeRate get(final Currency currency, final LocalDate date) {
-        return cache.getIfPresent(new EuroFxRateId(date, currency));
+    public Optional<ExchangeRate> get(final Currency currency, final LocalDate date) {
+        return ofNullable(cache.getIfPresent(new EuroFxRateId(date, currency)));
     }
 
-    public ExchangeRate getLatest(final Currency currency) {
+    public Optional<ExchangeRate> getLatest(final Currency currency) {
         return get(currency, latestDate);
     }
 

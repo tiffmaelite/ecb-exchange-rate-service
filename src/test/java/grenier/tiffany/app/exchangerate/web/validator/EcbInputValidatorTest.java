@@ -1,5 +1,7 @@
 package grenier.tiffany.app.exchangerate.web.validator;
 
+import grenier.tiffany.app.exchangerate.exception.InvalidCurrencyException;
+import grenier.tiffany.app.exchangerate.exception.InvalidDateException;
 import org.junit.Test;
 
 import java.util.Currency;
@@ -10,7 +12,7 @@ import static org.junit.Assert.assertThat;
 
 public final class EcbInputValidatorTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidCurrencyException.class)
     public void validateNonExistentCurrency() throws Exception {
         final EcbInputValidator validator = new EcbInputValidator();
         validator.validateCurrency("CHR");
@@ -23,13 +25,13 @@ public final class EcbInputValidatorTest {
         assertThat(result, is(Currency.getInstance("CHF")));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidDateException.class)
     public void validateDateTooOld() throws Exception {
         final EcbInputValidator validator = new EcbInputValidator();
         validator.validateDate(now().minusDays(200L));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidDateException.class)
     public void validateDateInTheFuture() throws Exception {
         final EcbInputValidator validator = new EcbInputValidator();
         validator.validateDate(now().plusDays(1L));

@@ -1,5 +1,6 @@
 package grenier.tiffany.app.exchangerate.web.validator;
 
+import grenier.tiffany.app.exchangerate.exception.InvalidCurrencyException;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -11,7 +12,7 @@ import static org.junit.Assert.assertThat;
 
 public final class DummyInputValidatorTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidCurrencyException.class)
     public void validateNonExistentCurrency() throws Exception {
         final String nonExistentCurrencyCode = "CHR";
         final DummyInputValidator validator = new DummyInputValidator();

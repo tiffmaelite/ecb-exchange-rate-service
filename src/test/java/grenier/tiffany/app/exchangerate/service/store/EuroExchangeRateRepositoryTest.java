@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.util.Currency;
+import java.util.Optional;
 
 import static grenier.tiffany.app.exchangerate.service.EuroExchangeRateService.EUR;
 import static org.hamcrest.CoreMatchers.is;
@@ -41,15 +42,23 @@ public class EuroExchangeRateRepositoryTest {
     }
 
     @Test
-    public void getWithoutDate() {
-        final ExchangeRate latestChfRate = FILLED_STORE.getLatest(chf);
-        assertThat(latestChfRate, is(chfRate_2));
+    public void getLatest() {
+        final Optional<ExchangeRate> latestChfRate = FILLED_STORE.getLatest(chf);
+        assertTrue(latestChfRate.isPresent());
+        assertThat(latestChfRate.get(), is(chfRate_2));
     }
 
     @Test
     public void get() {
-        final ExchangeRate latestChfRate = FILLED_STORE.get(chf, date_1);
-        assertThat(latestChfRate, is(chfRate_1));
+        final Optional<ExchangeRate> latestChfRate = FILLED_STORE.get(chf, date_1);
+        assertTrue(latestChfRate.isPresent());
+        assertThat(latestChfRate.get(), is(chfRate_1));
+    }
+
+    @Test
+    public void getNonExistent() {
+        final Optional<ExchangeRate> latestChfRate = FILLED_STORE.get(Currency.getInstance("ZAR"), date_1);
+        assertFalse(latestChfRate.isPresent());
     }
 
 }

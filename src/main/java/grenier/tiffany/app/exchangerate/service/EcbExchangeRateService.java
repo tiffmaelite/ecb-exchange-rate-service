@@ -1,5 +1,6 @@
 package grenier.tiffany.app.exchangerate.service;
 
+import grenier.tiffany.app.exchangerate.exception.ExchangeRateNotFoundException;
 import grenier.tiffany.app.exchangerate.model.ExchangeRate;
 import grenier.tiffany.app.exchangerate.service.store.EuroExchangeRateRepository;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import java.util.Currency;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -46,7 +48,8 @@ public final class EcbExchangeRateService implements EuroExchangeRateService {//
         if (BASE_CURRENCY.equals(currency)) {
             return getIdentityExchangeRate(currency, date);
         }
-        return store.get(currency, date);
+        return store.get(currency, date)
+                .orElseThrow(() -> new ExchangeRateNotFoundException("EUR->" + currency + " rate not found for date " + date.format(ISO_DATE)));
     }
 
     @Override
@@ -55,7 +58,8 @@ public final class EcbExchangeRateService implements EuroExchangeRateService {//
         if (BASE_CURRENCY.equals(currency)) {
             return getIdentityExchangeRate(currency, store.getLatestDate());
         }
-        return store.getLatest(currency);
+        return store.getLatest(currency)
+                .orElseThrow(() -> new IllegalArgumentException());
     }
 
     private void initStorage() {

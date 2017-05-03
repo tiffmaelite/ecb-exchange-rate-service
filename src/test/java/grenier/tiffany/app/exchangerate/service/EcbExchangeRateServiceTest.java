@@ -10,13 +10,17 @@ import org.springframework.scheduling.annotation.AsyncResult;
 
 import java.time.LocalDate;
 import java.util.Currency;
+import java.util.Optional;
 
 import static grenier.tiffany.app.exchangerate.service.EuroExchangeRateService.EUR;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 //TODO: use Spock?
@@ -37,7 +41,7 @@ public class EcbExchangeRateServiceTest {
         final EcbExchangeRateService service = new EcbExchangeRateService(mockDataService, mockRepository);
         final ExchangeRate expectedResult = new ExchangeRate(EUR, currency, date, rate);
         when(mockRepository.isEmpty()).thenReturn(false);
-        when(mockRepository.get(currency, date)).thenReturn(expectedResult);
+        when(mockRepository.get(currency, date)).thenReturn(Optional.of(expectedResult));
 
         final ExchangeRate actualResult = service.getExchangeRate(currency, date);
         assertThat(actualResult, is(expectedResult));
@@ -50,9 +54,14 @@ public class EcbExchangeRateServiceTest {
     public void getExchangeRateOnEmptyStoreShouldFetchData() {
         final Currency currency = Currency.getInstance("GBP");
         final LocalDate date = LocalDate.parse("2016-08-03");
+        final double rate = 0.83705;
 
         final EcbExchangeRateService service = new EcbExchangeRateService(mockDataService, mockRepository);
+        final ExchangeRate expectedResult = new ExchangeRate(EUR, currency, date, rate);
         when(mockRepository.isEmpty()).thenReturn(true);
+
+        when(mockDataService.fetchHistoricalData()).thenReturn(new AsyncResult<>(singleton(expectedResult)));
+        when(mockRepository.get(currency, date)).thenReturn(Optional.of(expectedResult));
 
         service.getExchangeRate(currency, date);
 
@@ -69,7 +78,7 @@ public class EcbExchangeRateServiceTest {
         service.updateStore();
 
         verify(mockDataService, times(1)).fetchHistoricalData();
-        verify(mockRepository, times(1)).save(any());
+        verify(mockRepository, times(1)).save(emptyList());
     }
 
     @Test
