@@ -1,5 +1,8 @@
 # ecb-exchange-rate-service
 
+DISCLAIMER: Was implemented for a (failed) job interview - DO NOT REUSE except as learning material pointing out to what not-to-do...
+
+
 Run <code>mvn clean package && mvn spring-boot:run</code> from the command line
 
 * To see today's foreign conversion rate from EUR to the currency of your choice, go to:
