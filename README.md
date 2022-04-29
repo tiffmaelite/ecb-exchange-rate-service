@@ -1,6 +1,6 @@
 # ecb-exchange-rate-service
 
-DISCLAIMER: Was implemented for a (failed) job interview - DO NOT REUSE except as learning material pointing out to what not-to-do...
+**DISCLAIMER: Was implemented for a (failed) job interview - It contains bad code and is not maintained - DO NOT REUSE**
 
 
 Run <code>mvn clean package && mvn spring-boot:run</code> from the command line
